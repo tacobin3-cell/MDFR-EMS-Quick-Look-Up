@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMS Medications Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            border-bottom: 1px solid #475569;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            padding: 24px 16px;
+        }
+
+        .header-content {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .header-icon {
+            padding: 12px;
+            background: linear-gradient(to bottom right, #10b981, #059669);
+            border-radius: 8px;
+        }
+
+        .header-icon svg {
+            width: 24px;
+            height: 24px;
+            color: white;
+        }
+
+        .header-title h1 {
+            font-size: 30px;
+            font-weight: bold;
+            letter-spacing: -0.5px;
+        }
+
+        .header-title p {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        @media (min-width: 640px) {
+            .controls {
+                flex-direction: row;
+            }
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 16px 10px 44px;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid #475569;
+            border-radius: 8px;
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .search-box input::placeholder {
+            color: #64748b;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            ring: 2px;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1), inset 0 0 0 1px #10b981;
+            border-color: transparent;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 10px;
+            width: 20px;
+            height: 20px;
+            color: #64748b;
+        }
+
+        .rank-select {
+            padding: 10px 16px;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid #475569;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .rank-select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1), inset 0 0 0 1px #10b981;
+            border-color: transparent;
+        }
+
+        .rank-select option {
+            background: #1e293b;
+            color: white;
+        }
+
+        /* Results Count */
+        .results-count {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 16px 16px;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        /* Medications */
+        .medications {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 16px 48px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .med-card {
+            background: linear-gradient(to right, rgba(30, 41, 59, 0.4), rgba(30, 41, 59, 0.2));
+            border: 1px solid rgba(71, 85, 105, 0.5);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .med-card:hover {
+            border-color: rgba(16, 185, 129, 0.5);
+            background: linear-gradient(to right, rgba(30, 41, 59, 0.6), rgba(30, 41, 59, 0.4));
+        }
+
+        .med-button {
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 20px;
+            cursor: pointer;
+            color: inherit;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .med-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .med-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .med-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            transition: color 0.3s;
+        }
+
+        .med-card:hover .med-name {
+            color: #10b981;
+        }
+
+        .med-category {
+            display: inline-block;
+            padding: 4px 8px;
+            background: rgba(71, 85, 105, 0.5);
+            font-size: 12px;
+            font-weight: 500;
+            color: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .med-indication {
+            font-size: 14px;
+            color: #cbd5e1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 12px;
+        }
+
+        .med-ranks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .rank-badge {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        .rank-emtb {
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+        }
+
+        .rank-aemt {
+            background: rgba(217, 119, 6, 0.2);
+            color: #fbbf24;
+        }
+
+        .rank-paramedic {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        .chevron {
+            width: 20px;
+            height: 20px;
+            color: #94a3b8;
+            transition: transform 0.3s;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .chevron.rotated {
+            transform: rotate(180deg);
+        }
+
+        /* Expanded Details */
+        .med-details {
+            background: rgba(15, 23, 42, 0.3);
+            border-top: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 24px;
+            display: grid;
+            gap: 24px;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 768px) {
+            .med-details {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .detail-section h3 {
+            font-size: 12px;
+            font-weight: bold;
+            color: #10b981;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .dosage-item {
+            background: rgba(15, 23, 42, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            margin-bottom: 8px;
+        }
+
+        .dosage-type {
+            font-size: 12px;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 4px;
+        }
+
+        .dosage-value {
+            font-size: 14px;
+            color: #e2e8f0;
+        }
+
+        .route-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .route-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 6px;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .timing-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .timing-box {
+            background: rgba(15, 23, 42, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(71, 85, 105, 0.3);
+        }
+
+        .timing-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .timing-value {
+            font-size: 13px;
+            color: #e2e8f0;
+        }
+
+        .info-box {
+            background: rgba(15, 23, 42, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            font-size: 13px;
+            color: #e2e8f0;
+            line-height: 1.5;
+        }
+
+        .warning-section h3 {
+            color: #fbbf24 !important;
+        }
+
+        .warning-section .info-box {
+            border-color: rgba(217, 119, 6, 0.2);
+        }
+
+        .danger-section h3 {
+            color: #fca5a5 !important;
+        }
+
+        .danger-section .info-box {
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .notes-section {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #475569;
+            grid-column: 1 / -1;
+        }
+
+        .notes-section h3 {
+            font-size: 12px !important;
+            margin-bottom: 8px;
+        }
+
+        .notes-text {
+            font-size: 13px;
+            color: #cbd5e1;
+            font-style: italic;
+            line-height: 1.6;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 48px 16px;
+        }
+
+        .empty-icon {
+            width: 48px;
+            height: 48px;
+            color: #475569;
+            margin: 0 auto 16px;
+        }
+
+        .empty-text {
+            color: #64748b;
+            font-size: 18px;
+        }
+
+        /* Footer */
+        .footer {
+            border-top: 1px solid #475569;
+            background: rgba(15, 23, 42, 0.4);
+            margin-top: 48px;
+        }
+
+        .footer-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px 16px;
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .footer-content p:not(:last-child) {
+            margin-bottom: 8px;
+        }
+
+        /* Icons */
+        .icon {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            vertical-align: -0.125em;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.2s ease-in;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="header-top">
+                    <div class="header-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polyline>
+                        </svg>
+                    </div>
+                    <div class="header-title">
+                        <h1>EMS Medications Portal</h1>
+                        <p>Comprehensive quick-reference guide for emergency medications</p>
+                    </div>
+                </div>
+                <div class="controls">
+                    <div class="search-box">
+                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" id="searchInput" placeholder="Search medications, indications, or categories..." onkeyup="filterMedications()">
+                    </div>
+                    <select id="rankFilter" class="rank-select" onchange="filterMedications()">
+                        <option value="all">All EMS Levels</option>
+                        <option value="EMT-B">EMT-Basic</option>
+                        <option value="AEMT">AEMT</option>
+                        <option value="Paramedic">Paramedic</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Count -->
+        <div class="results-count">
+            Showing <span id="resultsCount">0</span> of <span id="totalCount">0</span> medications
+        </div>
+
+        <!-- Medications List -->
+        <div class="medications" id="medicationsList"></div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-content">
+                <p>This is a reference guide. Always follow your local EMS protocols and medical director guidance.</p>
+                <p>Last updated: March 2026</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const medications = [
+    {
+      name: 'Epinephrine (Adrenaline)',
+      category: 'Cardiac/Vasoactive',
+      ranks: ['EMT-B', 'AEMT', 'Paramedic'],
+      dosages: {
+        'Cardiac Arrest': '1 mg IV/IO every 3-5 minutes',
+        'Anaphylaxis (Adult)': '0.3-0.5 mg IM, repeat every 5-15 min as needed',
+        'Anaphylaxis (Pediatric)': '0.01 mg/kg IM (max 0.3 mg), repeat every 5-15 min',
+        'Severe Hypotension': '2-10 mcg/min IV infusion'
+      },
+      routes: ['IV', 'IO', 'IM', 'Nebulized'],
+      indication: 'Cardiac arrest, anaphylaxis, severe hypotension, bronchospasm',
+      contraindications: 'Coronary artery disease (relative), thyroid disease, diabetes',
+      sideEffects: 'Tachycardia, hypertension, tremor, anxiety, arrhythmias',
+      onset: 'Immediate (IV), 5-15 min (IM)',
+      duration: '5-20 minutes',
+      notes: 'For cardiac arrest, give during chest compressions. For anaphylaxis, IM route preferred initially.'
+    },
+    {
+      name: 'Atropine',
+      category: 'Anticholinergic',
+      ranks: ['AEMT', 'Paramedic'],
+      dosages: {
+        'Bradycardia (Adult)': '0.5-1 mg IV, repeat every 3-5 minutes (max 3 mg)',
+        'Bradycardia (Pediatric)': '0.02 mg/kg IV (min 0.1 mg, max 0.5 mg)',
+        'Organophosphate Poisoning': '2-5 mg IV, repeat every 5-10 minutes'
+      },
+      routes: ['IV', 'IO'],
+      indication: 'Symptomatic bradycardia, organophosphate/carbamate poisoning',
+      contraindications: 'Glaucoma (relative), obstructive GI disease, cardiac arrhythmias',
+      sideEffects: 'Tachycardia, dry mouth, dilated pupils, urinary retention, flushed skin',
+      onset: '30-60 seconds',
+      duration: '1-3 hours',
+      notes: 'Do not give for bradycardia if blood pressure is adequate. Slower rate may be normal in athletes.'
+    },
+    {
+      name: 'Amiodarone',
+      category: 'Antiarrhythmic',
+      ranks: ['Paramedic'],
+      dosages: {
+        'VF/VT (First dose)': '300 mg IV/IO',
+        'VF/VT (Second dose)': '150 mg IV/IO after 3-5 minutes',
+        'Stable Tachycardia': '150 mg IV over 10 minutes, then infusion'
+      },
+      routes: ['IV', 'IO'],
+      indication: 'Ventricular fibrillation, pulseless VT, stable wide-complex tachycardia',
+      contraindications: 'Bradycardia, AV block, cardiogenic shock',
+      sideEffects: 'Hypotension, bradycardia, photosensitivity, pulmonary toxicity (chronic)',
+      onset: '2-3 minutes',
+      duration: 'Variable',
+      notes: 'IV push for arrest rhythms. Dilute in D5W or NS for infusions. Can cause severe hypotension with IV push.'
+    },
+    {
+      name: 'Nitroglycerin',
+      category: 'Vasodilator',
+      ranks: ['EMT-B', 'AEMT', 'Paramedic'],
+      dosages: {
+        'Chest Pain (Adult)': '0.3-0.6 mg SL every 5 minutes (max 1.5 mg)',
+        'IV Infusion': '10-20 mcg/min, titrate by 5-10 mcg/min every 3-5 minutes'
+      },
+      routes: ['Sublingual', 'IV (Paramedic only)'],
+      indication: 'Angina, acute MI, acute pulmonary edema, hypertensive emergency',
+      contraindications: 'Use of sildenafil/tadalafil in past 24-48 hours, RV infarction, severe anemia',
+      sideEffects: 'Headache, hypotension, tachycardia, dizziness, flushing',
+      onset: '1-3 minutes (SL), immediate (IV)',
+      duration: '30 minutes (SL), 5-10 minutes (IV)',
+      notes: 'Patient should sit when taking SL. Always check for RV involvement in inferior MI before giving. Contact ALS for IV.'
+    },
+    {
+      name: 'Morphine',
+      category: 'Opioid Analgesic',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Acute Pain/Dyspnea (Adult)': '2-4 mg IV/IM, repeat every 5 minutes as needed',
+        'Acute MI': '4-8 mg IV, repeat every 5-15 minutes',
+        'Pediatric': '0.1 mg/kg IV'
+      },
+      routes: ['IV', 'IM', 'IO'],
+      indication: 'Severe pain, acute MI, pulmonary edema, acute dyspnea',
+      contraindications: 'Respiratory depression, hypotension, head injury, drug allergy',
+      sideEffects: 'Respiratory depression, hypotension, bradycardia, nausea, constipation',
+      onset: '5-10 minutes (IV), 30-60 minutes (IM)',
+      duration: '2-7 hours',
+      notes: 'Titrate slowly in elderly/renal failure patients. Have naloxone ready. Monitor respiratory rate.'
+    },
+    {
+      name: 'Naloxone (Narcan)',
+      category: 'Opioid Antagonist',
+      ranks: ['EMT-B', 'AEMT', 'Paramedic'],
+      dosages: {
+        'Overdose (Adult)': '0.4-2 mg IV/IM/IN, repeat every 2-3 minutes as needed',
+        'Pediatric': '0.01 mg/kg IV/IM (min 0.1 mg)',
+        'Intranasal': '4 mg per nostril, repeat if needed'
+      },
+      routes: ['IV', 'IM', 'IN', 'IO'],
+      indication: 'Opioid overdose, altered mental status with suspected opioid use',
+      contraindications: 'Hypersensitivity, no true contraindications in overdose',
+      sideEffects: 'Withdrawal syndrome, acute pain, agitation, tachycardia, diaphoresis',
+      onset: '2-3 minutes (IV), 5-15 minutes (IM/IN)',
+      duration: '30-90 minutes',
+      notes: 'Patient may become aggressive/combative. Shorter duration than many opioids—monitor for re-sedation. Intranasal preferred by many protocols.'
+    },
+    {
+      name: 'Aspirin',
+      category: 'Antiplatelet',
+      ranks: ['EMT-B', 'AEMT', 'Paramedic'],
+      dosages: {
+        'ACS (Adult)': '324-325 mg PO (chewed)',
+        'Pediatric': '3-5 mg/kg PO'
+      },
+      routes: ['Oral'],
+      indication: 'Acute coronary syndrome, stroke prevention',
+      contraindications: 'Allergy, active GI bleed, hemorrhagic stroke',
+      sideEffects: 'GI upset, bleeding, allergic reaction',
+      onset: '15-30 minutes',
+      duration: 'Days',
+      notes: 'Must be chewed to activate quickly. Check contraindications before giving. Give within minutes of symptom onset.'
+    },
+    {
+      name: 'Glucose/Dextrose',
+      category: 'Hyperglycemic Agent',
+      ranks: ['EMT-B', 'AEMT', 'Paramedic'],
+      dosages: {
+        'Hypoglycemia (Adult PO)': '15 g carbs (4 oz juice, 3-4 glucose tablets)',
+        'D50 IV': '25 g (50 mL of 50% solution) IV, repeat if needed',
+        'D25 IV': '12.5 g (50 mL of 25% solution) in pediatric patients'
+      },
+      routes: ['Oral', 'IV', 'IO'],
+      indication: 'Symptomatic hypoglycemia, altered mental status with suspected low blood sugar',
+      contraindications: 'Inability to swallow (for oral), no IV access (for IV)',
+      sideEffects: 'Hyperglycemia (temporary), infiltration if extravasated',
+      onset: '5-15 minutes (PO), 1-3 minutes (IV)',
+      duration: 'Variable',
+      notes: 'Always treat presumed hypoglycemia in altered patient with AVPU <A. IV dextrose is caustic—use large bore IV and check placement.'
+    },
+    {
+      name: 'Albuterol (Salbutamol)',
+      category: 'Bronchodilator',
+      ranks: ['EMT-B', 'AEMT', 'Paramedic'],
+      dosages: {
+        'Nebulized (Adult)': '2.5-5 mg in 3 mL saline, repeat every 20 minutes',
+        'Nebulized (Pediatric)': '0.15 mg/kg (min 0.5 mg, max 5 mg)',
+        'MDI': '1-2 puffs every 5-15 minutes'
+      },
+      routes: ['Nebulized', 'MDI'],
+      indication: 'Asthma exacerbation, COPD exacerbation, bronchospasm',
+      contraindications: 'Allergy, uncontrolled arrhythmias (relative)',
+      sideEffects: 'Tremor, tachycardia, anxiety, palpitations, headache',
+      onset: '5-15 minutes',
+      duration: '4-6 hours',
+      notes: 'Use with ipratropium for better outcomes in COPD. Monitor for paradoxical bronchospasm (rare).'
+    },
+    {
+      name: 'Ipratropium',
+      category: 'Anticholinergic Bronchodilator',
+      ranks: ['AEMT', 'Paramedic'],
+      dosages: {
+        'Nebulized': '0.5 mg (500 mcg) in 3 mL saline with albuterol',
+        'MDI': '2 puffs (36 mcg) with albuterol'
+      },
+      routes: ['Nebulized', 'MDI'],
+      indication: 'COPD exacerbation (with albuterol), severe asthma',
+      contraindications: 'Allergy, narrow-angle glaucoma',
+      sideEffects: 'Dry mouth, tremor, tachycardia, blurred vision if in eyes',
+      onset: '5-15 minutes',
+      duration: '4-6 hours',
+      notes: 'More effective in COPD than asthma. Combines synergistically with albuterol. Protect eyes during nebulization.'
+    },
+    {
+      name: 'Furosemide (Lasix)',
+      category: 'Loop Diuretic',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Acute Pulmonary Edema (Adult)': '0.5-1 mg/kg IV, repeat every 5-10 minutes',
+        'Typical': '20-40 mg IV initial dose',
+        'Pediatric': '0.5-1 mg/kg IV'
+      },
+      routes: ['IV', 'IO'],
+      indication: 'Acute pulmonary edema, heart failure exacerbation',
+      contraindications: 'Severe hypotension, severe hypokalemia, dehydration',
+      sideEffects: 'Hypotension, hypokalemia, ototoxicity (at high doses), dehydration',
+      onset: '1-5 minutes',
+      duration: '2-3 hours',
+      notes: 'Give with nitroglycerin for pulmonary edema. Monitor electrolytes. Patient may need to void during/after transport.'
+    },
+    {
+      name: 'Adenosine',
+      category: 'Antiarrhythmic',
+      ranks: ['Paramedic'],
+      dosages: {
+        '1st Dose (Adult)': '6 mg IV push, followed by 20 mL saline flush',
+        '2nd Dose': '12 mg IV push if no response',
+        'Pediatric 1st': '0.1 mg/kg IV (max 6 mg)',
+        'Pediatric 2nd': '0.2 mg/kg IV (max 12 mg)'
+      },
+      routes: ['IV', 'IO'],
+      indication: 'Stable narrow-complex tachycardia, reentrant SVT',
+      contraindications: 'Asthma/COPD, severe hypotension, decompensated HF, high-degree AV block',
+      sideEffects: 'Facial flushing, dyspnea, chest discomfort, palpitations, brief asystole (normal)',
+      onset: 'Immediate',
+      duration: 'Seconds to minutes',
+      notes: 'Must be given rapidly followed by saline flush in proximal IV. Will cause brief asystole—normal response. Document rhythm before/after.'
+    },
+    {
+      name: 'Sodium Bicarbonate',
+      category: 'Alkalinizing Agent',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Cardiac Arrest': '1 mEq/kg IV, repeat every 10 minutes',
+        'Typical Dose': '50 mL of 8.4% solution (50 mEq)',
+        'Metabolic Acidosis': 'Calculated dosing based on ABG'
+      },
+      routes: ['IV', 'IO'],
+      indication: 'Severe metabolic acidosis, tricyclic antidepressant overdose, prolonged cardiac arrest',
+      contraindications: 'Respiratory acidosis, hypocalcemia, severe hypokalemia',
+      sideEffects: 'Hypernatremia, hyperkalemia, metabolic alkalosis, extravasation burns',
+      onset: '5-10 minutes',
+      duration: 'Hours',
+      notes: 'Give after establishing IV access. Very caustic—infiltration causes severe burns. Document pH if available.'
+    },
+    {
+      name: 'Calcium Chloride/Gluconate',
+      category: 'Electrolyte',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Hyperkalemia (CaCl)': '500 mg-1 g IV over 2-5 minutes',
+        'Hypocalcemia': '500 mg-1 g IV',
+        'Pediatric': '10-20 mg/kg IV'
+      },
+      routes: ['IV', 'IO'],
+      indication: 'Hyperkalemia, hypocalcemia, calcium channel blocker overdose, hydrofluoric acid burns',
+      contraindications: 'Digitalis toxicity (relative)',
+      sideEffects: 'Bradycardia, hypotension, tissue necrosis if extravasated, flushing',
+      onset: '1-3 minutes',
+      duration: '30-60 minutes',
+      notes: 'Calcium chloride irritates veins—use central line if possible. Do not mix with sodium bicarbonate. Caution with digoxin patients.'
+    },
+    {
+      name: 'Magnesium Sulfate',
+      category: 'Electrolyte',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Torsades de Pointes': '1-2 g IV over 5-20 minutes',
+        'Asthma': '1.2-2 g IV over 20 minutes',
+        'Pediatric': '25-50 mg/kg IV'
+      },
+      routes: ['IV', 'IO'],
+      indication: 'Torsades de pointes, severe asthma, eclampsia, COPD exacerbation',
+      contraindications: 'Renal failure (relative), hypocalcemia, myasthenia gravis',
+      sideEffects: 'Flushing, sweating, depressed reflexes, respiratory depression (high dose)',
+      onset: '1-2 minutes',
+      duration: '30 minutes to hours',
+      notes: 'Monitor for hypermagnesemia—check reflexes. Decreases seizure risk in eclampsia. Keep calcium available as antidote.'
+    },
+    {
+      name: 'Glucagon',
+      category: 'Hyperglycemic Agent',
+      ranks: ['AEMT', 'Paramedic'],
+      dosages: {
+        'Adult': '1 mg IM/IV/SC, repeat every 5-20 minutes if needed',
+        'Pediatric <20 kg': '0.5 mg IM/IV/SC',
+        'Beta-blocker Overdose': '5-10 mg IV bolus'
+      },
+      routes: ['IM', 'IV', 'SC', 'IO'],
+      indication: 'Hypoglycemia (if IV access unavailable), beta-blocker/calcium channel blocker overdose',
+      contraindications: 'Pheochromocytoma (relative), hypersensitivity',
+      sideEffects: 'Nausea, vomiting, hyperglycemia, local reaction at injection site',
+      onset: '5-10 minutes (IM), 1-3 minutes (IV)',
+      duration: '1-1.5 hours',
+      notes: 'Requires reconstitution. Excellent option when IV access unavailable. Give after reconstitution promptly.'
+    },
+    {
+      name: 'Ondansetron (Zofran)',
+      category: 'Antiemetic',
+      ranks: ['AEMT', 'Paramedic'],
+      dosages: {
+        'Adult': '4 mg IV/IM/PO',
+        'Pediatric': '0.1 mg/kg IV (max 4 mg)',
+        'Repeat': 'Every 6-8 hours as needed'
+      },
+      routes: ['IV', 'IM', 'PO'],
+      indication: 'Nausea/vomiting from pain, medications, chemotherapy',
+      contraindications: 'QT prolongation, allergy',
+      sideEffects: 'Headache, constipation, QT prolongation (rare), diarrhea',
+      onset: '30 minutes (PO), 15 minutes (IV)',
+      duration: '4-8 hours',
+      notes: 'Safe in pregnancy. No anti-aspiration properties—still need to manage airway.'
+    },
+    {
+      name: 'Metoprolol',
+      category: 'Beta-Blocker',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Hypertension/Tachycardia': '5 mg IV over 2 minutes, repeat every 5 minutes (max 15 mg)',
+        'Acute Coronary Syndrome': 'Goal HR 50-60 bpm'
+      },
+      routes: ['IV', 'PO'],
+      indication: 'Hypertensive emergency, ACS with tachycardia/hypertension, arrhythmias',
+      contraindications: 'Severe bradycardia, AV block, decompensated HF, cardiogenic shock, asthma/COPD',
+      sideEffects: 'Bradycardia, hypotension, fatigue, depression, bronchospasm',
+      onset: '1-2 minutes (IV)',
+      duration: '3-7 hours',
+      notes: 'Contraindicated in cocaine-induced chest pain. Check HR/BP before administration.'
+    },
+    {
+      name: 'Labetalol',
+      category: 'Alpha/Beta-Blocker',
+      ranks: ['Paramedic'],
+      dosages: {
+        '1st Dose': '10-20 mg IV over 2 minutes',
+        '2nd Dose (if needed)': '40-80 mg IV every 10 minutes (max 220 mg)',
+        'Infusion': '0.5-2 mg/min IV titrated to effect'
+      },
+      routes: ['IV', 'PO'],
+      indication: 'Hypertensive emergency, hypertensive crisis in pregnancy',
+      contraindications: 'Asthma, severe COPD, decompensated HF, AV block, cardiogenic shock',
+      sideEffects: 'Dizziness, fatigue, headache, GI upset, positive ANA (chronic use)',
+      onset: '2-5 minutes',
+      duration: '3-4 hours',
+      notes: 'Good choice for hypertensive emergency—lowers BP smoothly. Better than other beta-blockers in pregnancy.'
+    },
+    {
+      name: 'Hydralazine',
+      category: 'Vasodilator',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Adult': '10-20 mg IV/IM, repeat every 4-6 hours',
+        'Pediatric': '0.1-0.2 mg/kg IV/IM (max 20 mg)',
+        'Infusion': '10-40 mcg/min IV'
+      },
+      routes: ['IV', 'IM'],
+      indication: 'Hypertensive emergency, hypertension in pregnancy/eclampsia',
+      contraindications: 'Coronary artery disease (relative), hypersensitivity',
+      sideEffects: 'Headache, tachycardia, lupus-like syndrome (chronic), hypotension',
+      onset: '5-20 minutes (IM), 10-30 minutes (IV)',
+      duration: '2-4 hours',
+      notes: 'Often combined with nitroglycerin for better BP control. Monitor for reflex tachycardia.'
+    },
+    {
+      name: 'Nitroprusside',
+      category: 'Vasodilator',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Initial': '0.5 mcg/kg/min IV',
+        'Titration': 'Increase by 0.5 mcg/kg/min every 2-3 minutes',
+        'Usual Range': '1-3 mcg/kg/min (max 10 mcg/kg/min, time limit 4 hours)'
+      },
+      routes: ['IV'],
+      indication: 'Hypertensive emergency, acute heart failure with hypertension',
+      contraindications: 'Severe renal disease (cyanide accumulation), B12 deficiency',
+      sideEffects: 'Hypotension, reflex tachycardia, thiocyanate toxicity, cyanide toxicity (prolonged use)',
+      onset: 'Immediate',
+      duration: '1-10 minutes after discontinuation',
+      notes: 'Requires ICU-level monitoring. Light-sensitive—use opaque tubing. High cost limits field use. Rarely used in EMS.'
+    },
+    {
+      name: 'Procainamide',
+      category: 'Antiarrhythmic',
+      ranks: ['Paramedic'],
+      dosages: {
+        'VF/VT': '20 mg/min IV until suppression (max 17 mg/kg)',
+        'SVT': '20 mg/min IV (max 12 mg/kg)',
+        'Infusion': '1-4 mg/min IV'
+      },
+      routes: ['IV', 'IM'],
+      indication: 'Wide-complex tachycardia, VF/VT (if amiodarone unavailable), AF with rapid rate',
+      contraindications: 'QRS >120 ms (relative), lupus, hypotension, myasthenia gravis',
+      sideEffects: 'Hypotension, lupus-like syndrome, GI upset, tinnitus',
+      onset: '5-10 minutes',
+      duration: '2-4 hours',
+      notes: 'Slower than amiodarone. Less commonly used now due to amiodarone availability. Monitor QRS duration.'
+    },
+    {
+      name: 'Verapamil',
+      category: 'Calcium Channel Blocker',
+      ranks: ['Paramedic'],
+      dosages: {
+        '1st Dose (Adult)': '2.5-5 mg IV over 2-3 minutes',
+        '2nd Dose (10 min)': '5-10 mg IV over 2 minutes',
+        'Infusion': '5 mcg/kg/min, titrate up'
+      },
+      routes: ['IV'],
+      indication: 'Stable SVT, AF with RVR (no accessory pathway)',
+      contraindications: 'WPW syndrome, decompensated HF, hypotension, AV block, sick sinus, severe bradycardia',
+      sideEffects: 'Hypotension, bradycardia, AV block, dizziness, headache, constipation',
+      onset: '3-5 minutes',
+      duration: '30 minutes to hours',
+      notes: 'Do not give with beta-blockers. Caution in AF with WPW—can accelerate conduction. Avoid in cocaine chest pain.'
+    },
+    {
+      name: 'Dextran/Hetastarch',
+      category: 'Volume Expander',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Bolus': '500-1000 mL IV over 15-30 minutes',
+        'Rate': 'Based on clinical response and protocol'
+      },
+      routes: ['IV'],
+      indication: 'Hypovolemic shock, massive hemorrhage (until blood available)',
+      contraindications: 'Severe head/spinal injury (relative), cerebral edema, pulmonary edema',
+      sideEffects: 'Coagulopathy, anaphylaxis, increased ICP, pulmonary edema',
+      onset: 'Immediate',
+      duration: 'Hours (variable)',
+      notes: 'Less effective than blood. Use only until whole blood available. Monitor for fluid overload.'
+    },
+    {
+      name: 'Normal Saline (0.9%)',
+      category: 'Crystalloid Fluid',
+      ranks: ['EMT-B', 'AEMT', 'Paramedic'],
+      dosages: {
+        'Fluid Bolus': '20 mL/kg IV over 15-20 minutes, repeat as needed',
+        'Maintenance': 'Based on protocol and clinical response',
+        'Pediatric': '20 mL/kg bolus'
+      },
+      routes: ['IV', 'IO'],
+      indication: 'Dehydration, hypovolemic shock, medication vehicle',
+      contraindications: 'Severe hyperchloremia, pulmonary edema',
+      sideEffects: 'Hyperchloremic metabolic acidosis (large volumes), pulmonary edema, hypernatremia',
+      onset: 'Immediate',
+      duration: 'Variable',
+      notes: 'First-line fluid for most protocols. Monitor for fluid overload in CHF/renal disease patients.'
+    },
+    {
+      name: 'Lactated Ringer\'s (LR)',
+      category: 'Crystalloid Fluid',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Fluid Bolus': '20 mL/kg IV over 15-20 minutes, repeat as needed',
+        'Pediatric': '20 mL/kg bolus'
+      },
+      routes: ['IV', 'IO'],
+      indication: 'Hypovolemic shock, major trauma, burns',
+      contraindications: 'Severe hepatic disease, hyperkalemia, hyperchloremia',
+      sideEffects: 'Hyperkalemia (in renal failure), alkalosis, potential increased mortality in TBI',
+      onset: 'Immediate',
+      duration: 'Variable',
+      notes: 'Better physiologic composition than NS. Preferred for trauma/burns if available. Not used in some brain injury protocols.'
+    },
+    {
+      name: 'Activated Charcoal',
+      category: 'Toxin Adsorbent',
+      ranks: ['AEMT', 'Paramedic'],
+      dosages: {
+        'Adult': '25-100 g PO',
+        'Pediatric': '0.5-1 g/kg PO (max 50 g)',
+        'Multiple doses': 'Every 4-6 hours in some overdoses'
+      },
+      routes: ['Oral'],
+      indication: 'Oral poisoning (most drugs, except metals/alcohols), overdose within 4 hours of ingestion',
+      contraindications: 'Decreased LOC, unable to protect airway, ingestion of corrosives, caustics',
+      sideEffects: 'Black stool, constipation, aspiration risk, reduced absorption of other drugs',
+      onset: 'Immediate',
+      duration: 'Hours',
+      notes: 'Must be given early (within 1 hour) for effectiveness. Does not work for all substances (cyanide, iron, lithium, etc.).'
+    },
+    {
+      name: 'Ketamine',
+      category: 'Sedative/Dissociative Anesthetic',
+      ranks: ['Paramedic'],
+      dosages: {
+        'RSI Induction': '1-2 mg/kg IV',
+        'IM Sedation': '4-5 mg/kg IM',
+        'IV Sedation (Agitation)': '0.5-1.5 mg/kg IV',
+        'Analgesia': '0.5 mg/kg IV',
+        'Pediatric RSI': '1-2 mg/kg IV or 4-5 mg/kg IM'
+      },
+      routes: ['IV', 'IM', 'IN'],
+      indication: 'Rapid sequence intubation, severe agitation, acute pain, sedation for procedures',
+      contraindications: 'Uncontrolled hypertension (relative), coronary artery disease (relative), angle-closure glaucoma',
+      sideEffects: 'Emergence reactions, tachycardia, hypertension, apnea, increased airway secretions, dissociation',
+      onset: '30 seconds (IV), 5-10 minutes (IM)',
+      duration: '15-30 minutes (IV), 30-60 minutes (IM)',
+      notes: 'Maintains airway reflexes and respiratory drive better than most agents. Can cause hallucinations on emergence. Monitor for increased ICP in severe head injuries. Often paired with succinylcholine for RSI.'
+    },
+    {
+      name: 'Succinylcholine (Sux)',
+      category: 'Depolarizing Paralytic',
+      ranks: ['Paramedic'],
+      dosages: {
+        'RSI Dose (Adult)': '1.5 mg/kg IV',
+        'RSI Dose (Pediatric)': '1-1.5 mg/kg IV',
+        'IM (if no IV)': '3-4 mg/kg IM (max 150 mg)'
+      },
+      routes: ['IV', 'IM', 'IO'],
+      indication: 'Rapid sequence intubation, muscle paralysis for emergency procedures',
+      contraindications: 'Hyperkalemia, burns >24 hours old, crush injuries, denervation injuries, malignant hyperthermia history, penetrating eye injury',
+      sideEffects: 'Hyperkalemia, bradycardia (especially in children), malignant hyperthermia, myoglobinuria, increased ICP, muscle fasciculations, masseter jaw rigidity',
+      onset: '30-60 seconds (IV), 2-3 minutes (IM)',
+      duration: '5-10 minutes (IV), 10-20 minutes (IM)',
+      notes: 'Fast onset—preferred for RSI. Depolarizing agent causes visible muscle fasciculations (can increase ICP/K+). Monitor for bradycardia in pediatrics. Check for contraindications carefully.'
+    },
+    {
+      name: 'Rocuronium (Roc)',
+      category: 'Non-depolarizing Paralytic',
+      ranks: ['Paramedic'],
+      dosages: {
+        'RSI Dose': '1.2 mg/kg IV',
+        'Pediatric': '1.2 mg/kg IV',
+        'Maintenance': '0.3-0.6 mg/kg IV every 20-40 minutes'
+      },
+      routes: ['IV', 'IO'],
+      indication: 'Rapid sequence intubation, prolonged paralysis for mechanical ventilation',
+      contraindications: 'Myasthenia gravis, hyperkalemia (relative), Stevens-Johnson syndrome history',
+      sideEffects: 'Tachycardia, increased ICP, vagal stimulation, anaphylaxis (rare), prolonged paralysis if organophosphate poisoning',
+      onset: '60-90 seconds',
+      duration: '30-40 minutes',
+      notes: 'Non-depolarizing agent—no fasciculations or potassium release. Slower onset than succinylcholine but more suitable if sux contraindicated. Requires reversal with rocuronium-specific agents in hospital.'
+    },
+    {
+      name: 'Vecuronium',
+      category: 'Non-depolarizing Paralytic',
+      ranks: ['Paramedic'],
+      dosages: {
+        'RSI Dose': '0.1 mg/kg IV',
+        'Pediatric': '0.1 mg/kg IV',
+        'Maintenance': '0.03 mg/kg IV every 20-40 minutes'
+      },
+      routes: ['IV', 'IO'],
+      indication: 'Paralysis for intubation and mechanical ventilation (less commonly used in field)',
+      contraindications: 'Myasthenia gravis, Stevens-Johnson syndrome',
+      sideEffects: 'Minimal hemodynamic effects, bradycardia (less common than other agents), prolonged paralysis',
+      onset: '90-120 seconds',
+      duration: '30-45 minutes',
+      notes: 'Non-depolarizing agent. Slower onset than rocuronium. Rarely used in EMS field protocols due to slower onset. More common in hospital RSI.'
+    },
+    {
+      name: 'Midazolam',
+      category: 'Sedative/Anxiolytic',
+      ranks: ['AEMT', 'Paramedic'],
+      dosages: {
+        'Sedation (Adult)': '0.5-2 mg IV/IM, titrate every 2-3 minutes',
+        'Seizure Control': '2-10 mg IV/IM',
+        'Pediatric Sedation': '0.05-0.1 mg/kg IV/IM',
+        'Pediatric Seizures': '0.1-0.2 mg/kg IV/IM (max 10 mg)'
+      },
+      routes: ['IV', 'IM', 'IN', 'IO'],
+      indication: 'Acute seizures, sedation, anxiety, pre-intubation medication',
+      contraindications: 'Respiratory depression, severe hypotension, glaucoma (relative)',
+      sideEffects: 'Respiratory depression, hypotension, anterograde amnesia, paradoxical agitation',
+      onset: '2-3 minutes (IV), 5-10 minutes (IM)',
+      duration: '30-60 minutes',
+      notes: 'Intranasal formulation excellent for pediatric seizing patients. Flumazenil is reversal agent. Common seizure management medication in EMS.'
+    },
+    {
+      name: 'Lorazepam',
+      category: 'Sedative/Anxiolytic',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Seizures (Adult)': '2-4 mg IV/IM, repeat every 10 minutes',
+        'Seizures (Pediatric)': '0.05-0.1 mg/kg IV/IM (max 2 mg per dose)',
+        'Agitation': '1-4 mg IV/IM'
+      },
+      routes: ['IV', 'IM', 'IO'],
+      indication: 'Status epilepticus, acute seizures, severe agitation',
+      contraindications: 'Respiratory depression, hypotension, narrow-angle glaucoma',
+      sideEffects: 'Respiratory depression, hypotension, sedation, dependence with chronic use',
+      onset: '2-5 minutes (IV), 15-30 minutes (IM)',
+      duration: '1-12 hours',
+      notes: 'Longer-acting than midazolam. Better than diazepam for seizure termination. Must be refrigerated. Flumazenil reverses benzodiazepines.'
+    },
+    {
+      name: 'Propofol',
+      category: 'Sedative/Hypnotic',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Induction': '1-2 mg/kg IV',
+        'Infusion': '25-75 mcg/kg/min IV',
+        'Bolus for Agitation': '10-20 mg IV'
+      },
+      routes: ['IV'],
+      indication: 'Induction anesthesia for RSI (select protocols), sedation for mechanical ventilation, severe agitation',
+      contraindications: 'Hypotension, respiratory depression, egg/soy allergy',
+      sideEffects: 'Severe hypotension, respiratory depression, apnea, bradycardia, pain at injection site',
+      onset: '30-60 seconds',
+      duration: '5-10 minutes (bolus), variable (infusion)',
+      notes: 'Potent sedative—causes significant hemodynamic compromise. Risk of propofol infusion syndrome with prolonged use. Requires advanced airway management capability.'
+    },
+    {
+      name: 'Etomidate',
+      category: 'Sedative/Hypnotic',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Induction': '0.2-0.3 mg/kg IV',
+        'Pediatric': '0.2-0.3 mg/kg IV'
+      },
+      routes: ['IV', 'IO'],
+      indication: 'RSI induction in hemodynamically unstable patients, procedural sedation',
+      contraindications: 'Sepsis (relative due to adrenal suppression), porphyria',
+      sideEffects: 'Adrenal suppression (single dose risk controversial), myoclonus, apnea, hypotension (minimal)',
+      onset: '30-60 seconds',
+      duration: '4-12 minutes',
+      notes: 'Best choice for hypotensive patients—maintains hemodynamics. Causes involuntary muscle movements (may want paralytic). Single dose debate on adrenal effects continues.'
+    },
+    {
+      name: 'Fentanyl',
+      category: 'Opioid Analgesic',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Pain (IV/IM)': '0.5-1 mcg/kg, repeat every 3-5 minutes',
+        'RSI Pre-medication': '3-5 mcg/kg IV',
+        'Transdermal': '12.5-100 mcg patches (field use rare)',
+        'Intranasal': '1.5-2 mcg/kg (nasal spray formulations)'
+      },
+      routes: ['IV', 'IM', 'IN', 'Transdermal', 'IO'],
+      indication: 'Severe pain, pre-intubation analgesia, acute MI, pulmonary edema',
+      contraindications: 'Respiratory depression, hypotension, head injury, use of MAOIs',
+      sideEffects: 'Respiratory depression, hypotension, bradycardia, chest wall rigidity (high doses), nausea',
+      onset: '1-3 minutes (IV), 5-10 minutes (IM)',
+      duration: '30-60 minutes (IV), 1-2 hours (IM)',
+      notes: 'Very potent opioid—100x stronger than morphine. Intranasal/IV formulations available. Chest wall rigidity risk with rapid/high doses. Naloxone reversal available.'
+    },
+    {
+      name: 'Tranexamic Acid (TXA)',
+      category: 'Hemostatic/Antifibrinolytic',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Trauma with Hemorrhage': '1 g IV over 10 minutes, then 1 g infusion over 8 hours',
+        'Loading Dose': '20 mg/kg IV',
+        'Maintenance': '10 mg/kg IV infusion'
+      },
+      routes: ['IV', 'IO'],
+      indication: 'Significant hemorrhage from trauma, GI bleed, postpartum hemorrhage (in hospital protocols)',
+      contraindications: 'Thromboembolic disease (relative), active intravascular clotting, subarachnoid hemorrhage',
+      sideEffects: 'Thromboembolic events (rare), seizures (high doses), gastrointestinal symptoms, visual disturbances',
+      onset: '1-3 minutes',
+      duration: 'Hours',
+      notes: 'CRASH-2 trial showed benefit if given early in trauma. Effective within 3 hours of injury. More evidence in penetrating vs blunt trauma. Not a substitute for hemorrhage control.'
+    },
+    {
+      name: 'Norepinephrine (Norepi)',
+      category: 'Vasoactive/Adrenergic',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Infusion (Initial)': '0.5-1 mcg/kg/min IV',
+        'Titration': 'Increase by 0.5-1 mcg/kg/min every 2-3 minutes',
+        'Usual Range': '2-12 mcg/kg/min to maintain SBP >90-100'
+      },
+      routes: ['IV'],
+      indication: 'Septic shock, hypotensive states, profound bradycardia unresponsive to atropine',
+      contraindications: 'Myocardial infarction (relative), severe tachycardia, uncontrolled hypertension',
+      sideEffects: 'Tachycardia, hypertension, tissue necrosis if infiltrated, decreased renal/splanchnic perfusion',
+      onset: 'Immediate',
+      duration: '1-5 minutes after discontinuation',
+      notes: 'Potent alpha and beta agonist. More selective for alpha than epi, causing less tachycardia. Requires central line if possible (caustic to veins). Essential for septic shock protocols.'
+    },
+    {
+      name: 'Dopamine',
+      category: 'Vasoactive/Adrenergic',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Renal Dose': '1-5 mcg/kg/min',
+        'Cardiac Dose': '5-10 mcg/kg/min',
+        'Vasopressor Dose': '10-20 mcg/kg/min (max 20 mcg/kg/min)',
+        'Usual Range': 'Titrate based on clinical response'
+      },
+      routes: ['IV'],
+      indication: 'Shock (cardiogenic/septic), hypotension, symptomatic bradycardia',
+      contraindications: 'Uncorrected hypovolemia, pheochromocytoma, uncontrolled arrhythmias, cocaine use',
+      sideEffects: 'Tachycardia, arrhythmias, angina, hypertension, tissue necrosis if infiltrated, nausea',
+      onset: 'Immediate',
+      duration: '2-5 minutes after discontinuation',
+      notes: 'Dose-dependent effects: low=renal vasodilation, mid=cardiac stimulation, high=vasoconstriction. "Renal dose" dopamine no longer recommended. Requires central line if possible.'
+    },
+    {
+      name: 'Dobutamine',
+      category: 'Inotropic/Vasoactive',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Initial': '2.5-5 mcg/kg/min IV',
+        'Titration': 'Increase by 2.5-5 mcg/kg/min every 3-5 minutes',
+        'Usual Range': '2.5-20 mcg/kg/min'
+      },
+      routes: ['IV'],
+      indication: 'Cardiogenic shock, acute heart failure with hypotension, low cardiac output states',
+      contraindications: 'Hypertrophic cardiomyopathy, uncorrected hypovolemia, acute MI (relative)',
+      sideEffects: 'Tachycardia, hypertension, arrhythmias, angina, hypotension',
+      onset: '1-2 minutes',
+      duration: '2-5 minutes after discontinuation',
+      notes: 'Primarily beta-1 agonist (inotropic). Increases cardiac contractility without strong vasoconstriction like dopamine. Useful when blood pressure is acceptable but CO is low.'
+    },
+    {
+      name: 'Milrinone',
+      category: 'Inotropic/Vasodilator',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Loading Dose': '50 mcg/kg IV over 10 minutes (optional)',
+        'Infusion': '0.25-0.75 mcg/kg/min IV',
+        'Titration': 'Based on response'
+      },
+      routes: ['IV'],
+      indication: 'Cardiogenic shock, acute decompensated heart failure with low CO',
+      contraindications: 'Uncontrolled hypertension, aortic stenosis, hyperthyroidism (relative)',
+      sideEffects: 'Hypotension, arrhythmias, thrombocytopenia (rare), increased ICP',
+      onset: '5-15 minutes',
+      duration: '30-60 minutes after discontinuation',
+      notes: 'Phosphodiesterase inhibitor—improves contractility AND causes vasodilation. Good for cardiogenic shock when BP can tolerate it. Expensive; rarely used in field.'
+    },
+    {
+      name: 'Methylene Blue',
+      category: 'Antidote/Reducing Agent',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Methemoglobinemia': '1-2 mg/kg IV over 3-5 minutes, can repeat after 1 hour if needed'
+      },
+      routes: ['IV'],
+      indication: 'Symptomatic methemoglobinemia (>30% or altered mental status)',
+      contraindications: 'G6PD deficiency (relative), severe renal disease',
+      sideEffects: 'Blue discoloration of urine/skin, abdominal pain, headache, hemolysis in G6PD',
+      onset: '30 minutes to 2 hours',
+      duration: 'Hours',
+      notes: 'Treat if metHb >30% with symptoms or >70% regardless. Causes blue urine—normal effect. Repeat dose less effective; discontinue if no response.'
+    },
+    {
+      name: 'Calcium Oxalate Chelation (Calcium)',
+      category: 'Antidote',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Hydrofluoric Acid Burn': '10-20 mL of 10% calcium gluconate IV'
+      },
+      routes: ['IV', 'Topical', 'Subcutaneous'],
+      indication: 'Hydrofluoric acid burns to neutralize fluoride ions',
+      contraindications: 'None in acute hydrofluoric exposure',
+      sideEffects: 'Hypercalcemia (chronic exposure), tissue irritation',
+      onset: 'Immediate',
+      duration: 'Hours',
+      notes: 'Fluoride crosses skin and causes severe systemic toxicity. IV calcium is critical. Can also use topical/subcutaneous calcium gluconate. Always escalate for HF burns.'
+    },
+    {
+      name: 'Cyanide Antidote Kit',
+      category: 'Antidote',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Amyl Nitrite': '0.3 mL inhaled for 30 seconds',
+        'Sodium Nitrite': '3 g (10 mL of 30% solution) IV over 2-5 minutes',
+        'Sodium Thiosulfate': '12.5 g (50 mL of 25% solution) IV over 10-15 minutes'
+      },
+      routes: ['Inhalation', 'IV'],
+      indication: 'Suspected cyanide poisoning (smoke inhalation, industrial exposure)',
+      contraindications: 'Do not use if only theoretical cyanide exposure',
+      sideEffects: 'Hypotension, headache, methemoglobinemia (from nitrite), tinnitus',
+      onset: 'Immediate (inhalation), 1-3 minutes (IV)',
+      duration: 'Variable',
+      notes: 'Nitrite creates methemoglobin which binds cyanide; thiosulfate enables excretion. Rarely used in field. Consider in large smoke inhalation with metabolic acidosis.'
+    },
+    {
+      name: 'Hydroxocobalamin',
+      category: 'Antidote',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Cyanide (Adult)': '5 g IV (newer preferred over nitrite kit)',
+        'Pediatric': '70 mg/kg IV (max 5 g)'
+      },
+      routes: ['IV'],
+      indication: 'Suspected cyanide poisoning, preferential alternative to nitrite kit',
+      contraindications: 'None in cyanide poisoning',
+      sideEffects: 'Red discoloration of urine/skin, mild GI upset',
+      onset: 'Minutes',
+      duration: 'Hours',
+      notes: 'Binds cyanide directly—safer than nitrite kit (no hypotension risk). Newer protocols prefer this over traditional nitrite/thiosulfate combination.'
+    },
+    {
+      name: 'Diphenhydramine',
+      category: 'Antihistamine',
+      ranks: ['AEMT', 'Paramedic'],
+      dosages: {
+        'Allergic Reaction (Adult)': '25-50 mg IV/IM',
+        'Anaphylaxis (adjunct)': '25-50 mg IV/IM after epinephrine',
+        'Pediatric': '1 mg/kg IV/IM (max 50 mg)'
+      },
+      routes: ['IV', 'IM', 'PO'],
+      indication: 'Allergic reactions, anaphylaxis (adjunct to epinephrine), hives, drug reactions',
+      contraindications: 'Narrow-angle glaucoma, urinary retention, lower respiratory disease',
+      sideEffects: 'Sedation, anticholinergic effects, dry mouth, urinary retention, paradoxical excitement in children',
+      onset: '15-30 minutes (PO), 5-10 minutes (IV)',
+      duration: '4-8 hours',
+      notes: 'Secondary agent in anaphylaxis—epinephrine is first. Sedation may be undesired. Second-generation antihistamines (non-sedating) becoming more common.'
+    },
+    {
+      name: 'Dexamethasone',
+      category: 'Corticosteroid',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Croup': '0.6 mg/kg IM/PO (max 10 mg)',
+        'Anaphylaxis (adjunct)': '10 mg IV/IM after epinephrine',
+        'Severe Asthma': '10-12 mg IV/PO',
+        'Pediatric Croup': '0.6 mg/kg'
+      },
+      routes: ['IV', 'IM', 'PO'],
+      indication: 'Croup, severe asthma, anaphylaxis (adjunct), cerebral edema',
+      contraindications: 'Active infection (relative), immunosuppression, chickenpox exposure (relative)',
+      sideEffects: 'Hyperglycemia, insomnia, mood changes, immunosuppression (chronic)',
+      onset: '15-30 minutes',
+      duration: 'Hours to days',
+      notes: 'Long-acting corticosteroid. Takes time to work so use with bronchodilators acutely. Prevents biphasic anaphylaxis reactions.'
+    },
+    {
+      name: 'Prednisone/Prednisolone',
+      category: 'Corticosteroid',
+      ranks: ['AEMT', 'Paramedic'],
+      dosages: {
+        'Asthma Exacerbation': '40-60 mg PO',
+        'Allergic Reaction': '20-50 mg PO',
+        'Pediatric Asthma': '0.5-1 mg/kg PO (max 60 mg)'
+      },
+      routes: ['PO'],
+      indication: 'Asthma exacerbation, acute allergic reactions, COPD exacerbation',
+      contraindications: 'Active infection (relative), immunosuppression',
+      sideEffects: 'Hyperglycemia, insomnia, GI upset, immunosuppression (chronic)',
+      onset: '30-60 minutes',
+      duration: '12-36 hours',
+      notes: 'Oral steroid—effective but slower than IV formulations. Excellent for asthma/COPD exacerbations. Often sent home with patient.'
+    },
+    {
+      name: 'Hydralazine IV',
+      category: 'Vasodilator',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Adult': '10-20 mg IV/IM, repeat every 4-6 hours',
+        'Pediatric': '0.1-0.2 mg/kg IV/IM (max 20 mg)',
+        'Infusion': '10-40 mcg/min IV'
+      },
+      routes: ['IV', 'IM'],
+      indication: 'Hypertensive emergency, hypertension in pregnancy/eclampsia',
+      contraindications: 'Coronary artery disease (relative), hypersensitivity',
+      sideEffects: 'Headache, tachycardia, lupus-like syndrome (chronic), hypotension',
+      onset: '5-20 minutes (IM), 10-30 minutes (IV)',
+      duration: '2-4 hours',
+      notes: 'Often combined with nitroglycerin for better BP control. Monitor for reflex tachycardia.'
+    },
+    {
+      name: 'Sodium Nitroprusside',
+      category: 'Vasodilator',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Initial': '0.5 mcg/kg/min IV',
+        'Titration': 'Increase by 0.5 mcg/kg/min every 2-3 minutes',
+        'Usual Range': '1-3 mcg/kg/min (max 10 mcg/kg/min, time limit 4 hours)'
+      },
+      routes: ['IV'],
+      indication: 'Hypertensive emergency, acute heart failure with hypertension',
+      contraindications: 'Severe renal disease (cyanide accumulation), B12 deficiency',
+      sideEffects: 'Hypotension, reflex tachycardia, thiocyanate toxicity, cyanide toxicity (prolonged use)',
+      onset: 'Immediate',
+      duration: '1-10 minutes after discontinuation',
+      notes: 'Requires ICU-level monitoring. Light-sensitive—use opaque tubing. High cost limits field use. Rarely used in EMS.'
+    },
+    {
+      name: 'Procainamide',
+      category: 'Antiarrhythmic',
+      ranks: ['Paramedic'],
+      dosages: {
+        'VF/VT': '20 mg/min IV until suppression (max 17 mg/kg)',
+        'SVT': '20 mg/min IV (max 12 mg/kg)',
+        'Infusion': '1-4 mg/min IV'
+      },
+      routes: ['IV', 'IM'],
+      indication: 'Wide-complex tachycardia, VF/VT (if amiodarone unavailable), AF with rapid rate',
+      contraindications: 'QRS >120 ms (relative), lupus, hypotension, myasthenia gravis',
+      sideEffects: 'Hypotension, lupus-like syndrome, GI upset, tinnitus',
+      onset: '5-10 minutes',
+      duration: '2-4 hours',
+      notes: 'Slower than amiodarone. Less commonly used now due to amiodarone availability. Monitor QRS duration.'
+    },
+    {
+      name: 'Verapamil',
+      category: 'Calcium Channel Blocker',
+      ranks: ['Paramedic'],
+      dosages: {
+        '1st Dose (Adult)': '2.5-5 mg IV over 2-3 minutes',
+        '2nd Dose (10 min)': '5-10 mg IV over 2 minutes',
+        'Infusion': '5 mcg/kg/min, titrate up'
+      },
+      routes: ['IV'],
+      indication: 'Stable SVT, AF with RVR (no accessory pathway)',
+      contraindications: 'WPW syndrome, decompensated HF, hypotension, AV block, sick sinus, severe bradycardia',
+      sideEffects: 'Hypotension, bradycardia, AV block, dizziness, headache, constipation',
+      onset: '3-5 minutes',
+      duration: '30 minutes to hours',
+      notes: 'Do not give with beta-blockers. Caution in AF with WPW—can accelerate conduction. Avoid in cocaine chest pain.'
+    },
+    {
+      name: 'Rocuronium Reversal (Sugammadex)',
+      category: 'Paralytic Reversal',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Standard Reversal': '2 mg/kg IV',
+        'Rapid Reversal': '4 mg/kg IV'
+      },
+      routes: ['IV'],
+      indication: 'Reversal of rocuronium paralysis (hospital-based protocols)',
+      contraindications: 'Renal failure (relative), preeclampsia',
+      sideEffects: 'Hypotension, bradycardia, nausea, anaphylaxis (rare)',
+      onset: '2-3 minutes',
+      duration: 'Hours',
+      notes: 'Specific reversal for rocuronium only (not succinylcholine). Rare in field protocols but increasingly used in hospital RSI. Expensive but rapid reversal.'
+    },
+    {
+      name: 'Neostigmine/Glycopyrrolate',
+      category: 'Paralytic Reversal',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Neostigmine': '5 mg IV with 0.1 mg glycopyrrolate',
+        'Alternative': 'Atropine 0.6 mg with neostigmine'
+      },
+      routes: ['IV'],
+      indication: 'Reversal of non-depolarizing paralytics (rocuronium/vecuronium)',
+      contraindications: 'Myasthenia gravis, asthma, GI/urinary obstruction',
+      sideEffects: 'Bradycardia, increased oral secretions, bronchospasm, muscle fasciculations',
+      onset: '5-10 minutes',
+      duration: 'Hours',
+      notes: 'Traditional reversal agent. Requires anticholinergic (glycopyrrolate/atropine) to prevent excessive secretions and bradycardia. Slower/less reliable than sugammadex.'
+    },
+    {
+      name: 'Albuterol IV',
+      category: 'Bronchodilator',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Hyperkalemia': '10-20 mcg/kg IV bolus or 5 mcg/min infusion',
+        'Status Asthmaticus': '0.5 mcg/kg/min infusion (rarely used IV in field)'
+      },
+      routes: ['IV'],
+      indication: 'Hyperkalemia (shifts K+ intracellularly), severe status asthmaticus unresponsive to nebulized therapy',
+      contraindications: 'Tachycardia, arrhythmias, hyperthyroidism, coronary disease (relative)',
+      sideEffects: 'Tachycardia, tremor, anxiety, arrhythmias, hypokalemia',
+      onset: '5-15 minutes',
+      duration: '1-2 hours',
+      notes: 'For hyperkalemia: couples with insulin/dextrose or calcium. Not first-line for asthma IV therapy due to side effects.'
+    },
+    {
+      name: 'Insulin/Dextrose',
+      category: 'Hyperkalemia Treatment',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Insulin': '10 units IV regular insulin',
+        'Dextrose': '25 g (50 mL D50) IV',
+        'Combined': 'Often given together—D50 before insulin'
+      },
+      routes: ['IV'],
+      indication: 'Life-threatening hyperkalemia, ECG changes from hyperkalemia',
+      contraindications: 'Hypoglycemia (check glucose first)',
+      sideEffects: 'Hypoglycemia, hypokalemia (delayed), local extravasation (for dextrose)',
+      onset: '5-15 minutes',
+      duration: 'Hours',
+      notes: 'Shifts potassium intracellularly. Couples with albuterol or calcium chloride. Temporary fix—dialysis/diuretics needed long-term. Check glucose before giving insulin.'
+    },
+    {
+      name: 'Hydrocortisone (Solu-Cortef)',
+      category: 'Corticosteroid',
+      ranks: ['Paramedic'],
+      dosages: {
+        'Anaphylaxis': '50-100 mg IV/IM after epinephrine',
+        'Acute Adrenal Crisis': '50-100 mg IV every 6 hours',
+        'Severe Sepsis': '50 mg IV every 6 hours'
+      },
+      routes: ['IV', 'IM'],
+      indication: 'Anaphylaxis (adjunct), acute adrenal insufficiency, septic shock',
+      contraindications: 'Fungal infection (relative), active tuberculosis',
+      sideEffects: 'Hyperglycemia, immunosuppression, fluid retention, mood changes',
+      onset: '30-60 minutes',
+      duration: '8-12 hours',
+      notes: 'Rapid-acting IV steroid. Less potent than dexamethasone but faster acting. Adjunct agent in anaphylaxis/septic shock.'
+    }
+        ];
+
+        function filterMedications() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const rankFilter = document.getElementById('rankFilter').value;
+            
+            const filtered = medications.filter(med => {
+                const matchesSearch = med.name.toLowerCase().includes(searchTerm) ||
+                                    med.indication.toLowerCase().includes(searchTerm) ||
+                                    med.category.toLowerCase().includes(searchTerm);
+                
+                const matchesRank = rankFilter === 'all' || med.ranks.includes(rankFilter);
+                return matchesSearch && matchesRank;
+            });
+
+            document.getElementById('resultsCount').textContent = filtered.length;
+            document.getElementById('totalCount').textContent = medications.length;
+            renderMedications(filtered);
+        }
+
+        function renderMedications(meds) {
+            const container = document.getElementById('medicationsList');
+            
+            if (meds.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <p class="empty-text">No medications found matching your search.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = meds.map((med, idx) => `
+                <div class="med-card">
+                    <button class="med-button" onclick="toggleDetails(${idx})">
+                        <div class="med-info">
+                            <div class="med-header">
+                                <h2 class="med-name">${med.name}</h2>
+                                <span class="med-category">${med.category}</span>
+                            </div>
+                            <p class="med-indication">${med.indication}</p>
+                            <div class="med-ranks">
+                                ${med.ranks.map(rank => {
+                                    const rankClass = rank === 'EMT-B' ? 'rank-emtb' : 
+                                                    rank === 'AEMT' ? 'rank-aemt' : 'rank-paramedic';
+                                    return `<span class="rank-badge ${rankClass}">${rank}</span>`;
+                                }).join('')}
+                            </div>
+                        </div>
+                        <svg class="chevron ${window.expandedMedIndex === idx ? 'rotated' : ''}" 
+                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                    ${window.expandedMedIndex === idx ? `
+                        <div class="med-details fade-in">
+                            <div>
+                                <h3>Dosages</h3>
+                                ${Object.entries(med.dosages).map(([type, dose]) => `
+                                    <div class="dosage-item">
+                                        <p class="dosage-type">${type}</p>
+                                        <p class="dosage-value">${dose}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div>
+                                <h3>Routes</h3>
+                                <div class="route-badges">
+                                    ${med.routes.map(route => `<span class="route-badge">${route}</span>`).join('')}
+                                </div>
+                                <div class="timing-grid" style="margin-top: 16px;">
+                                    <div class="timing-box">
+                                        <p class="timing-label">Onset</p>
+                                        <p class="timing-value">${med.onset}</p>
+                                    </div>
+                                    <div class="timing-box">
+                                        <p class="timing-label">Duration</p>
+                                        <p class="timing-value">${med.duration}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h3>Indication</h3>
+                                <div class="info-box">${med.indication}</div>
+                            </div>
+                            <div class="warning-section">
+                                <h3>Contraindications</h3>
+                                <div class="info-box">${med.contraindications}</div>
+                            </div>
+                            <div class="danger-section">
+                                <h3>Side Effects</h3>
+                                <div class="info-box">${med.sideEffects}</div>
+                            </div>
+                            ${med.notes ? `
+                                <div class="notes-section">
+                                    <h3>Clinical Notes</h3>
+                                    <p class="notes-text">${med.notes}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function toggleDetails(idx) {
+            if (window.expandedMedIndex === idx) {
+                window.expandedMedIndex = null;
+            } else {
+                window.expandedMedIndex = idx;
+            }
+            filterMedications();
+        }
+
+        // Initial render
+        window.expandedMedIndex = null;
+        filterMedications();
+    </script>
+</body>
+</html>
